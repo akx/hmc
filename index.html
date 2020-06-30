@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HM</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    input, button {
+      display: block;
+      margin: .1em;
+      font-size: 5vw;
+    }
+  </style>
+</head>
+<body>
+  <div style="display: flex">
+    <input oninput="calc(this)" type=number autofocus placeholder="minutes" style="flex: 1">
+  </div>
+  <div style="display: flex">
+    <input readonly id=o placeholder="hours:minutes" style="flex: 1">
+    <button onclick="copy()">Copy</button>
+  </div>
+  <script>
+    function divmod(a, b) {
+      return [Math.floor(a / b), a % b];
+    }
+
+    function formatLeftPad(a, c, n = 2) {
+      a = `${a}`;
+      return (a.length < n ? `${c}`.repeat(n - a.length) : "") + a;
+    }
+
+    function calc(el) {
+      const totalMin = parseInt(el.valueAsNumber, 10);
+      const [hours, mins] = divmod(totalMin, 60);
+      const formatted = `${formatLeftPad(hours, "0", 2)}:${formatLeftPad(mins, "0", 2)}`;
+      document.getElementById("o").value = formatted;
+    }
+
+    function copy() {
+      navigator.clipboard.writeText(document.getElementById("o").value).catch((err) => {
+        alert("Copy failed");
+      });
+    }
+  </script>
+</body>
+</html>
