@@ -2,27 +2,56 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>HM</title>
   <style>
     * {
       box-sizing: border-box;
     }
+    body {
+      margin: 0;
+      background: #ecf0f1
+    }
+    body, body * {
+      font-size: 4vmin;
+    }
     input, button {
       display: block;
-      margin: .1em;
-      font-size: 5vw;
+      margin: .5rem;
+      padding: 1rem;
+      border: 1px solid #333
+    }
+    .f {
+      display: flex;
+      margin-bottom: 1rem;
+    }
+    button.c {
+      background: #686de0;
+      color: #dff9fb;
+    }
+    button.x {
+      background: #eb4d4b; 
+      color: #dff9fb;
     }
   </style>
 </head>
 <body>
-  <div style="display: flex">
-    <input oninput="calc(this)" type=number autofocus placeholder="minutes" style="flex: 1">
+  <div class="f">
+    <input id=i oninput="calc()" type="number" autofocus placeholder="minutes" style="flex: 1">
+    <button onclick="clear()" class="x">Clear</button>
   </div>
-  <div style="display: flex">
-    <input readonly id=o placeholder="hours:minutes" style="flex: 1">
-    <button onclick="copy()">Copy</button>
+  <div class="f">
+    <input readonly id="hm" placeholder="hours:minutes" style="flex: 1">
+    <button onclick="copy(hmEl)" class="c">Copy</button>
+  </div>
+  <div class="f">
+    <input readonly id="dhm" placeholder="days hours:minutes" style="flex: 1">
+    <button onclick="copy(dhmEl)" class="c">Copy</button>
   </div>
   <script>
+    var inputEl = document.getElementById("i");
+    var hmEl = document.getElementById("hm");
+    var dhmEl = document.getElementById("dhm");
     function divmod(a, b) {
       return [Math.floor(a / b), a % b];
     }
@@ -32,17 +61,31 @@
       return (a.length < n ? `${c}`.repeat(n - a.length) : "") + a;
     }
 
-    function calc(el) {
-      const totalMin = parseInt(el.valueAsNumber, 10);
-      const [hours, mins] = divmod(totalMin, 60);
-      const formatted = `${formatLeftPad(hours, "0", 2)}:${formatLeftPad(mins, "0", 2)}`;
-      document.getElementById("o").value = formatted;
+    function calc() {
+      const totalMin = parseInt(inputEl.valueAsNumber, 10) || 0;
+      var [hours, mins] = divmod(totalMin, 60);
+      dhmEl.value = hmEl.value = `${formatLeftPad(hours, "0", 2)}:${formatLeftPad(mins, "0", 2)}`;
+      var [days, hours] = divmod(hours, 24);
+      if(days > 0) {
+        dhmEl.value = `${days}d ${formatLeftPad(hours, "0", 2)}:${formatLeftPad(mins, "0", 2)}`;
+      }
     }
 
-    function copy() {
-      navigator.clipboard.writeText(document.getElementById("o").value).catch((err) => {
-        alert("Copy failed");
-      });
+    function copy(el) {
+      navigator.clipboard.writeText(el.value).then(
+        () => {
+          el.style.background = '#badc58';
+          setTimeout(() => el.style.background = '', 100);
+
+        },
+        (err) => {
+          alert("Copy failed");
+        },
+      );
+    }
+    function clear() {
+      inputEl.value = "";
+      inputEl.focus();
     }
   </script>
 </body>
